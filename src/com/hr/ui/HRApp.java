@@ -4,6 +4,8 @@ import com.hr.data.DataStore;
 import com.hr.model.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -17,12 +19,27 @@ public class HRApp extends JFrame {
         super("HR Management");
         this.company = DataStore.load();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+        initStyles();
         initUI();
+    }
+
+    private void initStyles() {
+        Font font = new Font("SansSerif", Font.PLAIN, 16);
+        UIManager.put("Label.font", font);
+        UIManager.put("Button.font", font);
+        UIManager.put("ComboBox.font", font);
+        UIManager.put("TextField.font", font);
+        UIManager.put("TextArea.font", font);
+        UIManager.put("Table.font", font);
+        UIManager.put("TableHeader.font", font.deriveFont(Font.BOLD));
     }
 
     private void initUI() {
         JTabbedPane tabs = new JTabbedPane();
+        Font tabFont = (Font) UIManager.get("Label.font");
+        tabs.setFont(tabFont);
         tabs.add("Add Department", createAddDepartmentPanel());
         tabs.add("Add Employee", createAddEmployeePanel());
         tabs.add("Assign", createAssignPanel());
@@ -38,7 +55,9 @@ public class HRApp extends JFrame {
     }
 
     private JPanel createAddDepartmentPanel() {
-        JPanel p = new JPanel(new GridLayout(3,2));
+        JPanel p = new JPanel(new GridLayout(3,2,5,5));
+        p.setBorder(new EmptyBorder(10,10,10,10));
+        p.setBackground(new Color(224,238,255));
         JTextField name = new JTextField();
         JTextField loc = new JTextField();
         JButton add = new JButton("Add");
@@ -57,7 +76,9 @@ public class HRApp extends JFrame {
     }
 
     private JPanel createAddEmployeePanel() {
-        JPanel p = new JPanel(new GridLayout(6,2));
+        JPanel p = new JPanel(new GridLayout(6,2,5,5));
+        p.setBorder(new EmptyBorder(10,10,10,10));
+        p.setBackground(new Color(238,255,224));
         JTextField first = new JTextField();
         JTextField last = new JTextField();
         JTextField gender = new JTextField();
@@ -80,7 +101,9 @@ public class HRApp extends JFrame {
     }
 
     private JPanel createAssignPanel() {
-        JPanel p = new JPanel(new GridLayout(4,2));
+        JPanel p = new JPanel(new GridLayout(4,2,5,5));
+        p.setBorder(new EmptyBorder(10,10,10,10));
+        p.setBackground(new Color(255,240,220));
         JComboBox<Employee> empBox = new JComboBox<>(company.getEmployees().toArray(new Employee[0]));
         JComboBox<Department> depBox = new JComboBox<>(company.getDepartments().toArray(new Department[0]));
         JButton assign = new JButton("Assign");
@@ -101,6 +124,8 @@ public class HRApp extends JFrame {
 
     private JPanel createReportPanel() {
         JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(new EmptyBorder(10,10,10,10));
+        p.setBackground(new Color(220,255,250));
         JButton gen = new JButton("Generate Report");
         JTextArea area = new JTextArea();
         JScrollPane sp = new JScrollPane(area);
@@ -112,17 +137,25 @@ public class HRApp extends JFrame {
 
     private JPanel createListPanel() {
         JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(new EmptyBorder(10,10,10,10));
+        p.setBackground(new Color(245,245,245));
         JComboBox<Department> depBox = new JComboBox<>(company.getDepartments().toArray(new Department[0]));
-        JTextArea area = new JTextArea();
-        JScrollPane sp = new JScrollPane(area);
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Name","Id","Pay Scale"},0);
+        JTable table = new JTable(model);
+        table.setFillsViewportHeight(true);
+        table.setRowHeight(24);
+        JScrollPane sp = new JScrollPane(table);
         depBox.addActionListener(e -> {
-            Department dep = (Department)depBox.getSelectedItem();
-            StringBuilder sb = new StringBuilder();
+            Department dep = (Department) depBox.getSelectedItem();
+            model.setRowCount(0);
             for(Employee emp: dep.getEmployees()) {
-                sb.append(emp).append(" - ").append(emp.getPayScale()).append("\n");
+                model.addRow(new Object[]{emp.getFirstName()+" "+emp.getLastName(), emp.getId(), emp.getPayScale()});
             }
-            area.setText(sb.toString());
         });
+        if(depBox.getItemCount()>0) {
+            depBox.setSelectedIndex(0);
+            depBox.getActionListeners()[0].actionPerformed(null);
+        }
         p.add(depBox, BorderLayout.NORTH);
         p.add(sp, BorderLayout.CENTER);
         return p;
