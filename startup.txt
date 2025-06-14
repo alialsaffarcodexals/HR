@@ -1,0 +1,22 @@
+2
+HR
+Manama
+2
+Ali
+Ahmad
+M
+Manama street
+1
+Sara
+Hassan
+F
+Budaiya
+2
+IT
+Riffa
+1
+John
+Doe
+M
+Juffair
+3
